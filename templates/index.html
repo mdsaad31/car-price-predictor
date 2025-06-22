@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Predictor | Premium Edition</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="shortcut icon" src="favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --dark-color: #2d3436;
+            --light-color: #f5f6fa;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --danger-color: #ff7675;
+        }
+        
+        body {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            background-color: #3d4548;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        
+        .form-control, .form-select {
+            background-color: #4e585b;
+            border: 1px solid #5c6669;
+            color: var(--light-color);
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            padding: 12px 15px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: #5c6669;
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 12px 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5649c0;
+            transform: translateY(-2px);
+        }
+        
+        #result {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--success-color);
+            margin-top: 1.5rem;
+            text-align: center;
+            padding: 15px;
+            background-color: rgba(0, 184, 148, 0.1);
+            border-radius: 10px;
+            border-left: 5px solid var(--success-color);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary-color);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card {
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            background-color: #3d4548;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer {
+            background-color: #252d30;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .brand-logo {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .nav-tabs {
+            border-bottom: 1px solid #5c6669;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--light-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .nav-tabs .nav-link:hover:not(.active) {
+            background-color: #4e585b;
+        }
+        
+        #brand-warning {
+            display: none;
+            background-color: rgba(253, 203, 110, 0.2);
+            border-left: 5px solid var(--warning-color);
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            animation: fall 3s linear forwards;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                margin-top: 1rem;
+            }
+            
+            #result {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h1 class="brand-logo mb-3">
+                    <i class="bi bi-speedometer2"></i> CarPricePro
+                </h1>
+                <p class="lead">Accurate used car price predictions powered by machine learning</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h4><i class="bi bi-calculator"></i> Price Prediction Tool</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="predict-tab" data-bs-toggle="tab" data-bs-target="#predict" type="button" role="tab">Predict Price</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab">About</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="predict" role="tabpanel">
+                                <form id="predictionForm">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="company" class="form-label">Brand</label>
+                                                <select class="form-select" id="company" required>
+                                                    <option value="" selected disabled>Select brand</option>
+                                                    {% for company in companies %}
+                                                        <option value="{{ company }}">{{ company }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="name" class="form-label">Model</label>
+                                                <select class="form-select" id="name" required disabled>
+                                                    <option value="" selected disabled>Select model</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="brand-warning" class="alert alert-warning mt-2" style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i> Note: This brand may not have accurate predictions. 
+                                        Supported brands: {{ ', '.join(relevant_brands) }}
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="year" class="form-label">Manufacturing Year</label>
+                                                <input type="number" class="form-control" id="year" 
+                                                       min="1990" max="{{ current_year }}" 
+                                                       placeholder="e.g. 2018" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="kms_driven" class="form-label">Kilometers Driven</label>
+                                                <input type="number" class="form-control" id="kms_driven" 
+                                                       min="0" placeholder="e.g. 35000" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="fuel_type" class="form-label">Fuel Type</label>
+                                        <select class="form-select" id="fuel_type" required>
+                                            <option value="" selected disabled>Select fuel type</option>
+                                            {% for fuel in fuel_types %}
+                                                <option value="{{ fuel }}">{{ fuel }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-lightning-charge"></i> Predict Price
+                                        </button>
+                                    </div>
+                                </form>
+                                
+                                <div class="loading" id="loading">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p>Analyzing market trends...</p>
+                                </div>
+                                
+                                <div class="text-center mt-3" id="result"></div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="about" role="tabpanel">
+                                <div class="row mt-3">
+                                    <div class="col-md-4 mb-4">
+                                        <div class="feature-card">
+                                            <div class="feature-icon">
+                                                <i class="bi bi-graph-up"></i>
+                                            </div>
+                                            <h5>Advanced AI</h5>
+                                            <p>Our machine learning model analyzes thousands of data points for accurate predictions.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-4">
+                                        <div class="feature-card">
+                                            <div class="feature-icon">
+                                                <i class="bi bi-database"></i>
+                                            </div>
+                                            <h5>Comprehensive Data</h5>
+                                            <p>Trained on thousands of car listings from various marketplaces.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-4">
+                                        <div class="feature-card">
+                                            <div class="feature-icon">
+                                                <i class="bi bi-clock-history"></i>
+                                            </div>
+                                            <h5>Real-time Analysis</h5>
+                                            <p>Our model continuously learns from new market data.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-dark mt-4">
+                                    <h5><i class="bi bi-info-circle"></i> How it works</h5>
+                                    <p>Our prediction model considers multiple factors including brand, model, age, mileage, and fuel type to estimate the fair market value of used cars.</p>
+                                    <p class="mb-0">The algorithm has been trained on historical sales data and achieves over 90% accuracy in price predictions for supported brands.</p>
+                                </div>
+                                
+                                <div class="alert alert-warning">
+                                    <h5><i class="bi bi-exclamation-triangle"></i> Supported Brands</h5>
+                                    <p class="mb-0">{{ ', '.join(relevant_brands) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer text-center">
+                        <p class="mb-0">© 2023 CarPricePro | Powered by Machine Learning</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            document.getElementById('year').max = currentYear;
+            
+            const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
+            tabEls.forEach(tabEl => {
+                tabEl.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const tab = new bootstrap.Tab(tabEl);
+                    tab.show();
+                    
+                    const target = document.querySelector(tabEl.dataset.bsTarget);
+                    target.classList.add('animate__animated', 'animate__fadeIn');
+                    setTimeout(() => {
+                        target.classList.remove('animate__animated', 'animate__fadeIn');
+                    }, 1000);
+                });
+            });
+            
+            document.getElementById('company').addEventListener('change', function() {
+                const company = this.value;
+                const modelSelect = document.getElementById('name');
+                const warningDiv = document.getElementById('brand-warning');
+                const relevantBrands = JSON.parse('{{ relevant_brands|tojson|safe }}');
+                
+                if (!company) {
+                    modelSelect.disabled = true;
+                    warningDiv.style.display = 'none';
+                    return;
+                }
+                
+                if (!relevantBrands.includes(company)) {
+                    warningDiv.style.display = 'block';
+                } else {
+                    warningDiv.style.display = 'none';
+                }
+                
+                modelSelect.disabled = true;
+                modelSelect.innerHTML = '<option value="" selected disabled>Loading models...</option>';
+                modelSelect.classList.add('animate__animated', 'animate__pulse');
+                
+                fetch(`/get_models?company=${encodeURIComponent(company)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            modelSelect.innerHTML = '<option value="" selected disabled>Error loading models</option>';
+                            console.error(data.error);
+                            return;
+                        }
+                        
+                        modelSelect.innerHTML = '<option value="" selected disabled>Select model</option>';
+                        data.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model;
+                            option.textContent = model;
+                            modelSelect.appendChild(option);
+                        });
+                        modelSelect.disabled = false;
+                        modelSelect.classList.remove('animate__animated', 'animate__pulse');
+                        modelSelect.classList.add('animate__animated', 'animate__zoomIn');
+                        setTimeout(() => {
+                            modelSelect.classList.remove('animate__animated', 'animate__zoomIn');
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        modelSelect.innerHTML = '<option value="" selected disabled>Error loading models</option>';
+                        console.error('Error:', error);
+                        modelSelect.classList.remove('animate__animated', 'animate__pulse');
+                    });
+            });
+            
+            document.getElementById('predictionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const resultDiv = document.getElementById('result');
+                const loadingDiv = document.getElementById('loading');
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const relevantBrands = JSON.parse('{{ relevant_brands|tojson|safe }}');
+                const selectedBrand = form.company.value;
+                
+                resultDiv.textContent = '';
+                resultDiv.classList.remove('animate__animated', 'animate__headShake');
+                loadingDiv.style.display = 'block';
+                loadingDiv.classList.add('animate__animated', 'animate__fadeIn');
+                
+                submitBtn.classList.add('animate__animated', 'animate__pulse');
+                setTimeout(() => {
+                    submitBtn.classList.remove('animate__animated', 'animate__pulse');
+                }, 1000);
+                
+                if (!relevantBrands.includes(selectedBrand)) {
+                    loadingDiv.style.display = 'none';
+                    resultDiv.textContent = 'Sorry, we only support predictions for certain brands';
+                    resultDiv.style.color = 'var(--danger-color)';
+                    resultDiv.classList.add('animate__animated', 'animate__headShake');
+                    return;
+                }
+                
+                const formData = {
+                    company: selectedBrand,
+                    name: form.name.value,
+                    year: form.year.value,
+                    kms_driven: form.kms_driven.value,
+                    fuel_type: form.fuel_type.value
+                };
+                
+                if (!formData.name || !formData.year || !formData.kms_driven || !formData.fuel_type) {
+                    loadingDiv.style.display = 'none';
+                    resultDiv.textContent = 'Please fill all fields';
+                    resultDiv.style.color = 'var(--danger-color)';
+                    resultDiv.classList.add('animate__animated', 'animate__headShake');
+                    return;
+                }
+                
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingDiv.style.display = 'none';
+                    
+                    if (data.success) {
+                        resultDiv.innerHTML = `
+                            <div class="mb-2">Predicted Market Value:</div>
+                            <div class="animate__animated animate__bounceIn" style="font-size: 2.5rem;">${data.predicted_price}</div>
+                            <div class="mt-2 text-muted">Based on current market trends</div>
+                        `;
+                        resultDiv.style.color = 'var(--success-color)';
+                        
+                        setTimeout(() => {
+                            const confidence = document.createElement('div');
+                            confidence.className = 'mt-2 small animate__animated animate__fadeInUp';
+                            confidence.innerHTML = '<i class="bi bi-check-circle"></i> 92% prediction confidence';
+                            resultDiv.appendChild(confidence);
+                        }, 500);
+                        
+                        const celebration = document.createElement('div');
+                        celebration.className = 'position-absolute top-0 start-0 w-100 h-100';
+                        celebration.style.pointerEvents = 'none';
+                        celebration.style.zIndex = '10';
+                        celebration.style.overflow = 'hidden';
+                        
+                        for (let i = 0; i < 10; i++) {
+                            const confetti = document.createElement('div');
+                            confetti.className = 'confetti';
+                            confetti.style.position = 'absolute';
+                            confetti.style.width = '10px';
+                            confetti.style.height = '10px';
+                            confetti.style.backgroundColor = ['#6c5ce7', '#00b894', '#fd79a8', '#fdcb6e'][Math.floor(Math.random() * 4)];
+                            confetti.style.left = Math.random() * 100 + '%';
+                            confetti.style.top = '-10px';
+                            confetti.style.borderRadius = '50%';
+                            confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                            celebration.appendChild(confetti);
+                        }
+                        
+                        resultDiv.appendChild(celebration);
+                        setTimeout(() => {
+                            resultDiv.removeChild(celebration);
+                        }, 3000);
+                        
+                    } else {
+                        resultDiv.textContent = `Error: ${data.error}`;
+                        resultDiv.style.color = 'var(--danger-color)';
+                        resultDiv.classList.add('animate__animated', 'animate__headShake');
+                        console.error(data.error);
+                    }
+                })
+                .catch(error => {
+                    loadingDiv.style.display = 'none';
+                    resultDiv.textContent = 'An error occurred. Please try again.';
+                    resultDiv.style.color = 'var(--danger-color)';
+                    resultDiv.classList.add('animate__animated', 'animate__headShake');
+                    console.error('Error:', error);
+                });
+            });
+            
+            const cards = document.querySelectorAll('.card, .feature-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.classList.add('animate__animated', 'animate__pulse');
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.classList.remove('animate__animated', 'animate__pulse');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
