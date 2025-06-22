@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 import numpy as np
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
@@ -103,5 +104,5 @@ def get_models():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
