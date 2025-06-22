@@ -5,7 +5,7 @@
 [![Scikit-Learn](https://img.shields.io/badge/Scikit_Learn-1.0%2B-orange?logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.1%2B-purple?logo=bootstrap&logoColor=white)](https://getbootstrap.com)
 [![License](https://img.shields.io/badge/License-MIT-brightgreen)](LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/yourusername/car-price-predictor?style=social)](https://github.com/mdsaad31/car-price-predictor)
+[![GitHub Stars](https://img.shields.io/github/stars/mdsaad31/car-price-predictor?style=social)](https://github.com/mdsaad31/car-price-predictor)
 
 ## 🌟 Features
 
